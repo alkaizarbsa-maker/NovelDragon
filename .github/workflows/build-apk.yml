@@ -26,10 +26,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build release APK
-        run: gradle :app:assembleRelease --stacktrace
+        run: |
+          PROJ="$(dirname "$(find "$GITHUB_WORKSPACE" -maxdepth 3 -name settings.gradle | head -n 1)")"
+          echo "Building Gradle project at: $PROJ"
+          gradle -p "$PROJ" :app:assembleRelease --stacktrace
+          echo "PROJ_DIR=$PROJ" >> "$GITHUB_ENV"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: noveldragon-apk
-          path: app/build/outputs/apk/release/app-release.apk
+          path: ${{ env.PROJ_DIR }}/app/build/outputs/apk/release/app-release.apk
